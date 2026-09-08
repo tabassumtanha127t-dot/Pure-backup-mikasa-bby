@@ -1,7 +1,7 @@
-module.exports.config = {
+ module.exports.config = {
   name: "spamkick",
   version: "1.2.0",
-  role: 1, 
+  role: 2, 
   author: "Saif",
   usePrefix: true,
   description: { 
@@ -9,12 +9,14 @@ module.exports.config = {
   },
   category: "box chat",
   guide: { en:"[on/off]"},
-  countDown: 5
+  countDown: 30
 };
 
 module.exports.onChat = async ({ api, event, usersData, commandName }) => {
   const { senderID, threadID } = event;
-  if (!global.antispam) global.antispam = new Map();
+  if (!global.antispam || !global.antispam.has(threadID)) {
+  return;
+  }
 
   const threadInfo = global.antispam.has(threadID) ? global.antispam.get(threadID) : { users: {} };
 
