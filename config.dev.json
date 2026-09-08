@@ -12,16 +12,16 @@
 	"antiInbox": false,
 	"language": "en",
 	"notesLanguage": "change to your language with ISO 639-1 code, available languages: vi (Vietnamese), en (English)",
-	"nickNameBot": "𝐌𝐢𝐤𝐚𝐬𝐚 𝐁𝐚𝐛𝐲 🎀",
-	"prefix": "-",
+	"nickNameBot": "𝐘𝐨𝐮𝐫 𝐌𝐢𝐤𝐚𝐬𝐚 𝐛𝐚𝐛𝐲 🎀",
+	"prefix": "!",
 	"adminOnly": {
 		"enable": false,
 		"ignoreCommand": []
 	},
-	"adminBot": ["100081317798618","100078639797619","61581271750258","100001946540538"],
+	"adminBot": ["100081317798618","100076339585458","61581271750258","100001946540538","61567256940629"],
 	"whiteListMode": {
-		"enable": true,
-		"whiteListIds": ["100081317798618","100078639797619","61581271750258","100001946540538"],
+		"enable": false,
+		"whiteListIds": ["100081317798618","100078639797619","61581271750258","100001946540538","61567256940629"],
 		"notes": "if you enable this feature, only the ids in the whiteListIds list can use the bot"
 	},
 	"whiteListModeThread": {
@@ -31,19 +31,19 @@
 		"how_it_work": "if you enable both whiteListMode and whiteListModeThread, the system will check if the user is in whiteListIds, then check if the thread is in whiteListThreadIds, if one of the conditions is true, the user can use the bot"
 	},
 	"database": {
-		"type": "sqlite",
-		"uriMongodb": "",
+		"type": "mongodb",
+		"uriMongodb": "mongodb+srv://mikasababy164_db_user:QKwNDxDWUtC6QN1F@cluster0.b9kfchg.mongodb.net/?appName=Cluster0",
 		"autoSyncWhenStart": false,
-		"autoRefreshThreadInfoFirstTime": true,
+		"autoRefreshThreadInfoFirstTime": false,
 		"notes": "(1) type selects 'json' or 'sqlite' or 'mongodb'. If you choose mongodb, enter uri connect mongodb in the uriMongodb section, instructions to get uri connect mongodb at: https://youtu.be/z1f9urHW5xY. I recommend using 'mongodb' or 'sqlite', json is not recommended because it is not stable. (2) when you set autoSyncWhenStart to true, the bot will automatically synchronize the data in the database when starting the bot, this will make the bot start slower. (3) when you set autoRefreshThreadInfoFirstTime to true, the bot will automatically refresh the thread information when get first message from the thread since starting the bot"
 	},
-	"timeZone": "Asia/dhaka",
-	 "credentials": {
+	"timeZone": "Asia/Dhaka",
+  "credentials": {
     "gmailAccount": {
       "email": "saifmorse04@gmail.com",
-      "clientId": "96871167660-5js0qjdlpr2mcd331kv5obpifev5j69r.apps.googleusercontent.com",
-      "clientSecret": "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",
-      "refreshToken": "1//04qK_zxJkdK7RCgYIARAAGAQSNwF-L9IrZOdI4prCgpqvAoDEvn-HpuSugKxBTRNoGS37QwxfAWJUCehSKhdas26xOh-SjmdR4uw",
+      "clientId": "100897454411-5r8hk9opvdijmogm98ksttg4asvfs3u6.apps.googleusercontent.com",
+      "clientSecret": "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",
+      "refreshToken": "1//04CwY3A993tGWCgYIARAAGAQSNwF-L9IrEMdVj25IWIOrpT0HX7Lo4YXx6ce0JP-C3GjKoyWSFb_-f_N3oHRL15ZwrsQ8TpBsjmI",
       "apiKey": ""
     },
 		 
@@ -86,7 +86,7 @@
 	"autoReloginWhenChangeAccount": false,
 	"autoRestartWhenListenMqttError": false,
 	"restartListenMqtt": {
-		"enable": true,
+		"enable": false,
 		"timeRestart": 3600000,
 		"delayAfterStopListening": 2000,
 		"logNoti": true,
@@ -132,7 +132,7 @@
 		"presence": false
 	},
 	"optionsFca": {
-		"forceLogin": true,
+		"forceLogin": false,
 		"listenEvents": true,
 		"updatePresence": true,
 		"listenTyping": true,
