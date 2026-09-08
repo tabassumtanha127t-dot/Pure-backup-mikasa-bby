@@ -41,6 +41,27 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 	//TODO: Move to ctx when implemented
 	const chatOn = ctx.globalOptions.online;
 	const foreground = false;
+	const reconnectState = ctx.__mqttReconnectState || {
+		attempts: 0,
+		timer: null,
+		stopping: false
+	};
+	ctx.__mqttReconnectState = reconnectState;
+	reconnectState.stopping = false;
+
+	const scheduleReconnect = (reason) => {
+		if (!ctx.globalOptions.autoReconnect || reconnectState.stopping || reconnectState.timer)
+			return;
+
+		const delay = Math.min(30000, 1000 * (2 ** reconnectState.attempts));
+		reconnectState.attempts++;
+		log.warn("listenMqtt", `Reconnecting after ${delay}ms (${reason})`);
+		reconnectState.timer = setTimeout(() => {
+			reconnectState.timer = null;
+			if (!reconnectState.stopping && ctx.mqttClient === mqttClient)
+				listenMqtt(defaultFuncs, api, ctx, globalCallback);
+		}, delay);
+	};
 
 	const sessionID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER) + 1;
 	const GUID = utils.getGUID();
@@ -97,7 +118,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 		},
 		keepalive: 60,
 		reschedulePings: true,
-		reconnectPeriod: 3
+	reconnectPeriod: 0
 	};
 
 	if (typeof ctx.globalOptions.proxy != "undefined") {
@@ -111,9 +132,12 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
 	mqttClient.on('error', function (err) {
 		log.error("listenMqtt", err);
-		mqttClient.end();
+		if (ctx.mqttClient !== mqttClient)
+			return;
+
+		mqttClient.end(true);
 		if (ctx.globalOptions.autoReconnect) {
-			listenMqtt(defaultFuncs, api, ctx, globalCallback);
+			scheduleReconnect("connection error");
 		} else {
 			utils.checkLiveCookie(ctx, defaultFuncs)
 				.then(res => {
@@ -166,12 +190,22 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 		mqttClient.publish("/set_client_settings", JSON.stringify({ make_user_available_when_in_foreground: true }), { qos: 1 });
 
 		const rTimeout = setTimeout(function () {
-			mqttClient.end();
-			listenMqtt(defaultFuncs, api, ctx, globalCallback);
+			if (ctx.mqttClient !== mqttClient)
+				return;
+			mqttClient.end(true);
+			if (ctx.globalOptions.autoReconnect) {
+				scheduleReconnect("sync timeout");
+			} else {
+				globalCallback({
+					type: "stop_listen",
+					error: "Message sync did not start within 5 seconds"
+				}, null);
+			}
 		}, 5000);
 
 		ctx.tmsWait = function () {
 			clearTimeout(rTimeout);
+			reconnectState.attempts = 0;
 			ctx.globalOptions.emitReady ? globalCallback({
 				type: "ready",
 				error: null
@@ -832,6 +866,11 @@ module.exports = function (defaultFuncs, api, ctx) {
 			stopListening(callback) {
 
 				callback = callback || (() => { });
+				if (ctx.__mqttReconnectState) {
+					ctx.__mqttReconnectState.stopping = true;
+					clearTimeout(ctx.__mqttReconnectState.timer);
+					ctx.__mqttReconnectState.timer = null;
+				}
 				globalCallback = identity;
 				if (ctx.mqttClient) {
 					ctx.mqttClient.unsubscribe("/webrtc");
